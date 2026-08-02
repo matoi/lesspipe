@@ -123,8 +123,13 @@ a preferred one can be forced by setting the environment variable
 .RS
 .I LESSCOLORIZER='pygmentize -O style=foo' # -P allowed as well
 .I LESSCOLORIZER='bat --style=foo --theme=bar' # default: theme=ansi, style=plain
+.I LESSCOLORIZER='/trusted/path/to/bat --style=plain'
 .RE
 .EE
+.PP
+An explicit path is resolved once and preserved for execution. Its basename
+selects the colorizer-specific options. A command name without a slash is
+resolved from \fIPATH\fP using the normal shell rules.
 .PP
 Syntax highlighting is activated if the environment variable \fBLESS\fP
 exists and contains the option \fI-R\fP,

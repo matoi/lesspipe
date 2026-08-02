@@ -445,33 +445,50 @@ analyze_args () {
 }
 
 find_colorizer () {
-	prog=${LESSCOLORIZER%% *}
-	# Handle vim/vimcolor special case
-	[[ $prog == *vimcolor ]] && ! has_cmd vim && ! has_cmd nvim && prog=
-	if [[ -z $prog ]]; then
+	requested=${LESSCOLORIZER%% *}
+	prog=
+	if [[ -z $requested ]]; then
 		for i in nvimpager batcat bat pygmentize e2ansi-cat source-highlight vim nvim code2color ; do
-			has_cmd "$i" && prog=$i && break
+			prog=$(resolve_executable "$i") && break
 		done
-		[[ $prog == *vim ]] && prog=vimcolor
 	else
-		has_cmd "$prog" || prog=
+		prog=$(resolve_executable "$requested") || prog=
 	fi
+
+	pname=${prog##*/}
+	case $pname in
+		vim|nvim)
+			prog=$(resolve_executable vimcolor) || prog= ;;
+		vimcolor)
+			{ has_cmd vim || has_cmd nvim; } || prog= ;;
+	esac
 	echo "$prog"
+}
+
+resolve_executable () {
+	candidate=$1
+	resolved=$(command -v -- "$candidate" 2>/dev/null) || return 1
+	[[ -n $resolved && $resolved == */* && -x $resolved && ! -d $resolved ]] || return 1
+	printf '%s\n' "$resolved"
 }
 
 check_lang () {
 	prog=$1
 	lang=$2
 	[[ -z $lang ]] && return
-	case $prog in
+	pname=${prog##*/}
+	case $pname in
 		bat|batcat)
 			lang=$(echo "$lang"|tr '[:upper:]' '[:lower:]')
 			languages=$($prog --list-languages|sed "s/^/:/;s/$/:/;s/\n/:/;s/,/:/g"|tr '[:upper:]' '[:lower:]') ;;
 		code2color)
 			languages=$($prog -L|sed "s/^/:/;s/$/:/;s/[ ]/:/g")
 			languages=${languages##*languages} ;;
-		vimcolor|nvimpager)
-			languages=$(vimcolor -L "$lang"|sed "s/^/:/;s/$/:/;s/ /:/g") ;;
+		vimcolor)
+			languages=$($prog -L "$lang"|sed "s/^/:/;s/$/:/;s/ /:/g") ;;
+		nvimpager)
+			vimcolor_prog=$(resolve_executable vimcolor) || vimcolor_prog=
+			[[ -n $vimcolor_prog ]] && languages=$($vimcolor_prog -L "$lang"|sed "s/^/:/;s/$/:/;s/ /:/g") ;;
 		source-highlight)
 			languages=$($prog --lang-list|sed "s/ =.*//;s/^/:/;s/$/:/;") ;;
 		pygmentize)
@@ -490,7 +507,8 @@ colorizer_cmd () {
 	file=$2
 	[[ $file == - && -n $final_name ]] && file=$final_name
 	lang=$3
-	case $prog in
+	pname=${prog##*/}
+	case $pname in
 		pygmentize)
 			# let pygmentite guess the language if not set and input from pipe
 			[[ -n $lang ]] && opt=(-l "$lang")
@@ -559,17 +577,14 @@ has_colorizer () {
 	# if input is from a pipe use the suffix as language hint
 	[[ $1 == - ]] && lang=$3
 
-	pname=${prog##*/}
-	! has_cmd "$pname" && pname= && prog=
-
-	lang="$(check_lang "$pname" "$reql")"
+	lang="$(check_lang "$prog" "$reql")"
 	if [[ -z "$lang" && $1 == - && -n $3 ]]; then
 		lang=$3
 		[[ $lang == *.* ]] && lang=${lang##*.}
-		lang="$(check_lang "$pname" "$lang")"
+		lang="$(check_lang "$prog" "$lang")"
 	fi
 	# set colorizer name, options and file name to process
-	colorizer_cmd "$pname" "$1" "$lang"
+	colorizer_cmd "$prog" "$1" "$lang"
 }
 
 isfinal () {

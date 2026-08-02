@@ -314,7 +314,11 @@ the author by email [(wp.friebel@gmail.com)](mailto:wp.friebel@gmail.com).
 ```
         LESSCOLORIZER='pygmentize -O style=foo'
         LESSCOLORIZER='bat --style=foo --theme=bar' # --theme=default for default theme
+        LESSCOLORIZER='/trusted/path/to/bat --style=plain'
 ```
+ An explicit path is resolved once and preserved for execution. Its basename
+ selects the colorizer-specific options. A command name without a slash is
+ resolved from `PATH` using the normal shell rules.
  Much better syntax highlighting is obtained using the `less` emulation of `vim`:
  The editor `vim` comes with a file `less.sh`, e.g. on Ubuntu located in
  /usr/share/vim/vimXX/macros (XX being the version number). Assuming that file
