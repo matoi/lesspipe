@@ -6,11 +6,28 @@ lesspipe_version=2.27
 
 # do not colorize files larger than this size
 [[ -n "$LESS_MAXSIZE_COLOR" ]] || LESS_MAXSIZE_COLOR=200000
-has_cmd () {
+command_available () {
 	[[ -n "$2" && "$2" > $($1 --version 2>/dev/null) ]] && return 1
 	cmdpath=$(command -v "$1")
 	[[ -n $cmdpath && -x $cmdpath ]] && return 0
 	return 1
+}
+
+parser_allowed () {
+	local name allowlist allowed
+	[[ ${LESSPIPE_ALLOWED_COMMANDS+x} != x ]] && return 0
+	name=${1##*/}
+	allowlist=${LESSPIPE_ALLOWED_COMMANDS//,/ }
+	allowlist=${allowlist//:/ }
+	for allowed in $allowlist; do
+		[[ $allowed == "$name" ]] && return 0
+	done
+	return 1
+}
+
+has_cmd () {
+	parser_allowed "$1" || return 1
+	command_available "$@"
 }
 
 fileext () {
@@ -429,7 +446,7 @@ analyze_args () {
 	COLOR="--color=auto"
 	colors=0
 	[[ $TERM == *256* ]] && colors=256
-	has_cmd tput && colors=$(tput colors)
+	command_available tput && colors=$(tput colors)
 	if [[ $colors -ge 8 ]]; then
 		lessarg="$LESS $lessarg"
 		# shellcheck disable=SC2206
@@ -976,7 +993,7 @@ set +o noclobber
 [[ -n "$ZSH_VERSION" ]] && setopt shwordsplit
 # the current locale in lowercase (or generic utf-8)
 charmap="utf-8"
-if has_cmd locale ; then
+if command_available locale ; then
 	map=$(locale -k charmap 2>/dev/null|tr '[:upper:]' '[:lower:]')
 	eval "$map"
 fi

@@ -76,6 +76,14 @@ displayed; this is a considered buggy behavior and should be reported.
 To suppress informal messages in the first line of the filter output, the
 environment variable \fBLESSQUIET\fP can be set to a nonempty value.
 .PP
+Optional external parsers are auto-detected by default. Setting
+\fBLESSPIPE_ALLOWED_COMMANDS\fP to a whitespace-, comma-, or colon-separated
+list restricts execution to those command names. Setting it to an empty string
+disables all optional parsers; leaving it unset preserves automatic detection.
+Core tools required by \fBlesspipe\fP itself are not controlled by this setting.
+A colorizer explicitly selected with \fBLESSCOLORIZER\fP is treated as
+explicitly trusted.
+.PP
 To disengage the filter temporarily, a colon can be appended to the file name.
 If the output was colorful, then the colon only disables the colorizer command.
 A second colon may then be required to display the original content.

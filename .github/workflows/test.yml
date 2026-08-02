@@ -58,3 +58,4 @@ jobs:
           eval "$(dircolors -b)"
           ./test.sh
           ./tests/colorizer-path.sh
+          ./tests/parser-allow-list.sh

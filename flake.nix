@@ -43,7 +43,7 @@
                 nativeBuildInputs = [ pkgs.shellcheck ];
               }
               ''
-                shellcheck ${./lesspipe.sh} ${./tests/colorizer-path.sh}
+                shellcheck ${./lesspipe.sh} ${./tests/colorizer-path.sh} ${./tests/parser-allow-list.sh}
                 touch "$out"
               '';
 
@@ -59,6 +59,16 @@
               }
               ''
                 ${./tests/colorizer-path.sh} ${package}/bin/lesspipe.sh
+                touch "$out"
+              '';
+
+          parserAllowList =
+            pkgs.runCommand "lesspipe-plus-parser-allow-list"
+              {
+                nativeBuildInputs = [ pkgs.coreutils ];
+              }
+              ''
+                ${./tests/parser-allow-list.sh} ${package}/bin/lesspipe.sh
                 touch "$out"
               '';
         }

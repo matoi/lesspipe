@@ -109,6 +109,19 @@ the author by email [(wp.friebel@gmail.com)](mailto:wp.friebel@gmail.com).
  Auxiliary programs are provided to enhance the TAB completion mechanism in
  bash and zsh shells and to help colorizing the filtered output.
 
+ Optional external parsers are auto-detected by default. To restrict that
+ attack surface, set **LESSPIPE_ALLOWED_COMMANDS** to a whitespace-, comma-,
+ or colon-separated allow-list of command names:
+
+        LESSPIPE_ALLOWED_COMMANDS='pandoc,jq,pdftotext'
+
+ Setting the variable to an empty string disables every optional parser.
+ Leaving it unset preserves the upstream auto-detection behavior. Core tools
+ required by lesspipe itself are not controlled by this setting. A colorizer
+ explicitly selected with **LESSCOLORIZER** is also treated as explicitly
+ trusted; automatic colorizer selection remains controlled separately by the
+ existing colorizer settings.
+
 ## 2. Usage
 
  (see also the man page lesspipe.1)
