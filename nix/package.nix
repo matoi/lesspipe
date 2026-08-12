@@ -16,7 +16,7 @@
 
 stdenv.mkDerivation {
   pname = "lesspipe-plus";
-  version = "2.27";
+  version = "2.27-plus.1";
   src = ../.;
 
   nativeBuildInputs = [ makeWrapper ];
@@ -40,6 +40,14 @@ stdenv.mkDerivation {
           procps
         ]
       }
+  '';
+
+  doInstallCheck = true;
+  installCheckPhase = ''
+    runHook preInstallCheck
+    test "$("$out/bin/lesspipe.sh" --version)" = \
+      "lesspipe-plus 2.27-plus.1 (based on lesspipe 2.27)"
+    runHook postInstallCheck
   '';
 
   meta = {

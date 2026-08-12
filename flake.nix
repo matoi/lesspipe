@@ -71,6 +71,17 @@
                 ${./tests/parser-allow-list.sh} ${package}/bin/lesspipe.sh
                 touch "$out"
               '';
+
+          version =
+            pkgs.runCommand "lesspipe-plus-version"
+              {
+                nativeBuildInputs = [ pkgs.bash ];
+              }
+              ''
+                test "$(${package}/bin/lesspipe.sh --version)" = \
+                  "lesspipe-plus 2.27-plus.1 (based on lesspipe 2.27)"
+                touch "$out"
+              '';
         }
       );
 

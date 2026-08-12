@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 # lesspipe.sh, a preprocessor for less
 lesspipe_version=2.27
+lesspipe_plus_version=2.27-plus.1
 # Author: Wolfgang Friebel (wp.friebel AT gmail.com)
 # LICENSE: GPL-2.0-or-later
+
+case "${1:-}" in
+	-V|--version)
+		printf 'lesspipe-plus %s (based on lesspipe %s)\n' \
+			"$lesspipe_plus_version" "$lesspipe_version"
+		exit 0
+		;;
+esac
 
 # do not colorize files larger than this size
 [[ -n "$LESS_MAXSIZE_COLOR" ]] || LESS_MAXSIZE_COLOR=200000
@@ -181,7 +190,7 @@ filetype () {
 msg () {
 	[[ -n "$LESSQUIET" ]] && return;
 	if [[ -n "$lesspipe_version" ]]; then
-		echo "==> (lesspipe $lesspipe_version) $*"
+		echo "==> (lesspipe-plus $lesspipe_plus_version) $*"
 	else
 		echo "==> $*"
 	fi
